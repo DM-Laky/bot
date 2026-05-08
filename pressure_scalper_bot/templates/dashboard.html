@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="2" />
+  <title>Pressure Scalper Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <h1>Pressure Scalper Bot</h1>
+  {% if mode == "LIVE" %}<div class="live-warning">LIVE MODE: REAL MONEY ACTIVE</div>{% endif %}
+  <div class="cards">
+    <div>State: <b>{{ state }}</b></div><div>Mode: <b>{{ mode }}</b></div><div>Balance: <b>{{ balance }}</b></div>
+    <div>Daily PnL: <b>{{ daily_pnl }}</b></div><div>Target: <b>{{ daily_target }}</b></div><div>Open: <b>{{ open_trades_count }}</b></div>
+    <div>Win Rate: <b>{{ win_rate }}%</b></div><div>Total Trades: <b>{{ total_trades }}</b></div>
+  </div>
+  <div class="actions">
+    <form method="post" action="/start"><button>Start</button></form>
+    <form method="post" action="/stop"><button>Stop</button></form>
+    <form method="post" action="/pause"><button>Pause</button></form>
+    <form method="post" action="/resume"><button>Resume</button></form>
+    <form method="post" action="/emergency-close"><button class="danger">Emergency Close All</button></form>
+  </div>
+
+  <h2>Open Trades</h2>
+  <table><tr><th>Symbol</th><th>Side</th><th>Entry</th><th>Qty</th><th>Score</th><th>Time</th><th>Action</th></tr>
+  {% for t in open_trades %}
+  <tr><td>{{ t.symbol }}</td><td>{{ t.side }}</td><td>{{ t.entry_price }}</td><td>{{ t.quantity }}</td><td>{{ t.score }}</td><td>{{ t.opened_at }}</td>
+  <td><form method="post" action="/close/{{ t.symbol | urlencode }}"><button>Close</button></form></td></tr>
+  {% endfor %}</table>
+
+  <h2>Market Analyze</h2>
+  <table><tr><th>Symbol</th><th>Direction</th><th>Score</th><th>Status</th></tr>
+  {% for c in candidates %}<tr><td>{{ c.symbol }}</td><td>{{ c.direction }}</td><td>{{ c.score }}</td><td>{{ c.status }}</td></tr>{% endfor %}</table>
+
+  <h2>Trade History</h2>
+  <table><tr><th>Time</th><th>Symbol</th><th>Side</th><th>Entry</th><th>Exit</th><th>PnL</th><th>Result</th><th>Score</th><th>Exit reason</th></tr>
+  {% for h in history %}<tr><td>{{ h.opened_at }}</td><td>{{ h.symbol }}</td><td>{{ h.side }}</td><td>{{ h.entry_price }}</td><td>{{ h.exit_price }}</td><td>{{ h.net_pnl }}</td><td>{{ h.result }}</td><td>{{ h.score }}</td><td>{{ h.exit_reason }}</td></tr>{% endfor %}</table>
+
+  <h2>Logs</h2>
+  <div class="logs">{% for l in logs %}<div>[{{ l.created_at }}] {{ l.level }} - {{ l.message }}</div>{% endfor %}</div>
+</body>
+</html>
